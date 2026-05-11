@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>企业成本费用分析 — 宇守信咨询</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif; background:#f0f2f5; color:#2d3436; padding-bottom:60px; }
+.header { background:linear-gradient(135deg,#1a237e,#3b82f6); color:white; padding:32px 20px 24px; text-align:center; }
+.header h1 { font-size:22px; font-weight:700; margin-bottom:6px; }
+.header p { font-size:13px; opacity:0.85; }
+.header .badge { display:inline-block; background:rgba(255,255,255,0.2); border-radius:20px; padding:4px 14px; font-size:11px; margin-top:8px; }
+.tabs { display:flex; background:white; box-shadow:0 1px 4px rgba(0,0,0,0.08); position:sticky; top:0; z-index:10; }
+.tab { flex:1; text-align:center; padding:14px 0; font-size:14px; font-weight:500; color:#888; cursor:pointer; border-bottom:3px solid transparent; transition:all .2s; }
+.tab.active { color:#1a237e; border-bottom-color:#1a237e; }
+.panel { display:none; padding:16px; }
+.panel.active { display:block; }
+.card { background:white; border-radius:12px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.06); margin-bottom:12px; }
+.card-title { background:#f0f4ff; padding:10px 16px; font-size:13px; font-weight:600; color:#1a237e; border-bottom:1px solid #e0e7ff; }
+.form-row { padding:10px 16px; border-bottom:1px solid #f5f5f5; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.form-row label { font-size:13px; color:#444; min-width:150px; flex-shrink:0; }
+.form-row input,.form-row select { padding:8px 12px; border:1px solid #e0e0e0; border-radius:8px; font-size:13px; flex:1; min-width:80px; max-width:200px; background:#fff8e1; line-height:44px; height:44px; }
+.form-row input:focus,.form-row select:focus { outline:none; border-color:#3b82f6; }
+.form-row .unit { font-size:12px; color:#888; }
+.yesno { display:flex; gap:8px; }
+.yesno span { padding:4px 16px; border-radius:16px; font-size:13px; cursor:pointer; border:1px solid #ddd; color:#666; }
+.yesno span.sel-yes { background:linear-gradient(135deg,#1a237e,#3b82f6); color:white; border-color:#3b82f6; }
+.yesno span.sel-no { background:#e8ecf1; color:#999; border-color:#ddd; }
+.fixed-bottom { position:sticky; bottom:0; background:white; padding:12px 16px; display:flex; gap:10px; box-shadow:0 -2px 8px rgba(0,0,0,0.06); z-index:10; }
+.fixed-bottom button { flex:1; padding:12px; border-radius:10px; font-size:14px; font-weight:600; border:none; cursor:pointer; }
+.btn-primary { background:linear-gradient(135deg,#1a237e,#3b82f6); color:white; }
+.btn-primary:hover { opacity:0.9; }
+.btn-secondary { background:#e8ecf1; color:#555; }
+
+.score-card { background:linear-gradient(135deg,#1a237e,#3b82f6); color:white; border-radius:16px; padding:28px 20px; text-align:center; margin-bottom:16px; }
+.score-card .label { font-size:13px; opacity:0.85; }
+.score-card .score { font-size:40px; font-weight:800; margin:6px 0; }
+.score-card .grade { font-size:16px; font-weight:600; margin-bottom:4px; }
+.score-card .suggestion { font-size:13px; opacity:0.9; line-height:1.6; }
+.result-summary { background:linear-gradient(135deg,#1a237e,#3b82f6); color:white; border-radius:16px; padding:28px 20px; text-align:center; margin-bottom:16px; }
+.result-summary .row { display:flex; justify-content:space-around; margin-top:12px; flex-wrap:wrap; gap:8px; }
+.result-summary .item { flex:1; min-width:100px; }
+.result-summary .item .label { font-size:11px; opacity:0.85; }
+.result-summary .item .val { font-size:22px; font-weight:800; margin:4px 0; }
+.result-summary .item .sub { font-size:12px; opacity:0.85; }
+
+.dim-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px; }
+.dim-card { background:white; border-radius:12px; padding:16px; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,0.06); }
+.dim-card .name { font-size:12px; color:#888; margin-bottom:4px; }
+.dim-card .dscore { font-size:20px; font-weight:700; }
+.dim-card .dstatus { font-size:11px; margin-top:4px; padding:2px 10px; border-radius:10px; display:inline-block; }
+.low { background:#e6f7e6; color:#16a34a; }
+.mid { background:#fef9e7; color:#d97706; }
+.high { background:#feeaea; color:#dc2626; }
+.pass { background:#e6f7e6; color:#16a34a; }
+.warn { background:#fef9e7; color:#d97706; }
+.danger { background:#feeaea; color:#dc2626; }
+.fail { background:#feeaea; color:#dc2626; }
+.caution { background:#fef9e7; color:#d97706; }
+.rate-green { background:#e6f7e6; color:#16a34a; }
+.rate-yellow { background:#fef9e7; color:#d97706; }
+.rate-red { background:#feeaea; color:#dc2626; }
+
+.help-card { background:white; border-radius:12px; padding:20px; margin-bottom:12px; box-shadow:0 1px 3px rgba(0,0,0,0.06); }
+.help-card h3 { font-size:15px; margin-bottom:8px; color:#1a237e; }
+.help-card p,.help-card li { font-size:13px; color:#555; line-height:1.8; }
+.check-list { list-style:none; padding:0; }
+.check-list li { padding:6px 0; font-size:13px; color:#444; border-bottom:1px solid #f5f5f5; display:flex; align-items:center; gap:8px; }
+.check-list li:last-child { border-bottom:none; }
+.detail-item { padding:12px 16px; border-bottom:1px solid #f5f5f5; display:flex; justify-content:space-between; align-items:center; }
+.detail-item:last-child { border-bottom:none; }
+.detail-item .dlabel { font-size:13px; color:#555; }
+.detail-item .dval { font-size:14px; font-weight:600; }
+.detail-item .dval.pass { color:#16a34a; }
+.detail-item .dval.warn { color:#d97706; }
+.detail-item .dval.danger { color:#dc2626; }
+.result-card { background:white; border-radius:12px; padding:16px; margin-bottom:8px; box-shadow:0 1px 3px rgba(0,0,0,0.06); }
+.result-card h3 { font-size:14px; color:#1a237e; margin-bottom:8px; }
+.result-row { display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid #f5f5f5; font-size:13px; }
+.result-row:last-child { border-bottom:none; }
+.result-row .label { color:#555; }
+.result-row .val { font-weight:600; }
+.result-row.total { border-top:2px solid #1a237e; padding-top:8px; margin-top:4px; font-weight:700; }
+.result-row.total .val { color:#1a237e; font-size:16px; }
+.result-green { color:#16a34a; }
+.result-red { color:#dc2626; }
+.result-orange { color:#d97706; }
+
+.member-banner { background:linear-gradient(135deg,#0f0c29,#302b63,#24243e); border-radius:12px; padding:20px; text-align:center; margin-top:16px; }
+.member-banner h3 { font-size:15px; color:white; margin-bottom:6px; }
+.member-banner p { font-size:12px; color:rgba(255,255,255,0.85); line-height:1.6; }
+.member-banner .btn { display:inline-block; background:white; color:#1a237e; padding:8px 24px; border-radius:20px; text-decoration:none; font-size:13px; font-weight:600; margin-top:8px; }
+
+.contact { background:#eef2ff; border-radius:8px; padding:12px; }
+.contact strong { font-size:14px; color:#1a237e; }
+.scenario-grid { display:flex; gap:8px; }
+.scenario-btn { flex:1; padding:10px; border-radius:8px; font-size:13px; font-weight:600; border:2px solid #ddd; background:white; color:#888; cursor:pointer; text-align:center; transition:all .2s; }
+.scenario-btn.active { border-color:#3b82f6; color:#1a237e; background:#eef2ff; }
+.chart-area { background:white; border-radius:16px; padding:20px; box-shadow:0 2px 12px rgba(0,0,0,0.06); margin-bottom:16px; text-align:center; }
+.chart-area canvas { max-width:100%; height:auto; }
+.form-row input[type=range] { flex:1; min-width:120px; max-width:250px; accent-color:#3b82f6; }
+.form-row .val { font-size:14px; font-weight:700; color:#1a237e; min-width:30px; text-align:right; }
+.form-row .hint { font-size:11px; color:#999; }
+.dim-card .bar-bg { position:absolute; bottom:0; left:0; height:4px; background:#e8ecf1; width:100%; }
+.dim-card .bar-fill { position:absolute; bottom:0; left:0; height:4px; transition:width .5s; }
+
+@media (max-width:480px){.dim-grid{grid-template-columns:1fr 1fr}.result-summary .row{flex-direction:column;gap:4px}}
+
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>📉 企业成本费用分析</h1>
+  <p>成本结构 · 费用占比 · 行业对比 · 异常预警</p>
+  <div class="badge">您身边的财税专家 · 洪淳宇</div>
+</div>
+<div class="tabs">
+  <div class="tab active" data-tab="input" onclick="st('input')">📝 填数据</div>
+  <div class="tab" data-tab="report" onclick="st('report')">📊 分析报告</div>
+  <div class="tab" data-tab="help" onclick="st('help')">❓ 说明</div>
+</div>
+
+<div class="panel active" id="p-input">
+  <div class="card">
+    <div class="card-title">🏢 企业基础信息</div>
+    <div class="form-row"><label>企业名称</label><input id="f_企业名称" placeholder="选填"></div>
+    <div class="form-row"><label>所属行业</label>
+      <select id="f_行业" style="padding:8px 12px;border:1px solid #ddd;border-radius:6px;font-size:13px;">
+        <option>制造业</option><option>商贸零售</option><option>服务业</option><option>建筑业</option><option>房地产</option><option>科技</option><option>其他</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📊 收入与成本数据（万元）</div>
+    <div class="form-row"><label>营业收入（年化）</label><input id="f_营业收入" type="number" placeholder="0"><span class="unit">万元</span></div>
+    <div class="form-row"><label>营业成本（年化）</label><input id="f_营业成本" type="number" placeholder="0"><span class="unit">万元</span></div>
+    <div class="form-row"><label>原材料/采购成本</label><input id="f_原材料" type="number" placeholder="0"><span class="unit">万元，选填</span></div>
+    <div class="form-row"><label>人工成本（工资+社保+福利）</label><input id="f_人工" type="number" placeholder="0"><span class="unit">万元</span></div>
+    <div class="form-row"><label>制造费用/运营费用</label><input id="f_制造费用" type="number" placeholder="0"><span class="unit">万元</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📋 期间费用数据（万元）</div>
+    <div class="form-row"><label>销售费用</label><input id="f_销售费用" type="number" placeholder="0"><span class="unit">万元</span></div>
+    <div class="form-row"><label>其中：广告宣传费</label><input id="f_广告费" type="number" placeholder="0"><span class="unit">万元</span></div>
+    <div class="form-row"><label>管理费用</label><input id="f_管理费用" type="number" placeholder="0"><span class="unit">万元</span></div>
+    <div class="form-row"><label>其中：业务招待费</label><input id="f_招待费" type="number" placeholder="0"><span class="unit">万元</span></div>
+    <div class="form-row"><label>其中：研发费用</label><input id="f_研发费" type="number" placeholder="0"><span class="unit">万元，选填</span></div>
+    <div class="form-row"><label>财务费用</label><input id="f_财务费用" type="number" placeholder="0"><span class="unit">万元</span></div>
+    <div class="form-row"><label>净利润</label><input id="f_净利润" type="number" placeholder="0"><span class="unit">万元</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📈 同期对比数据（上期，万元）</div>
+    <div class="form-row"><label>上期营业收入</label><input id="f_上期收入" type="number" placeholder="0"><span class="unit">万元，选填</span></div>
+    <div class="form-row"><label>上期营业成本</label><input id="f_上期成本" type="number" placeholder="0"><span class="unit">万元，选填</span></div>
+    <div class="form-row"><label>上期净利润</label><input id="f_上期利润" type="number" placeholder="0"><span class="unit">万元，选填</span></div>
+  </div>
+
+  <div class="fixed-bottom">
+    <button class="btn-secondary" onclick="resetAll()">清空</button>
+    <button class="btn-primary" onclick="calc()">📊 开始分析</button>
+  </div>
+</div>
+
+<div class="panel" id="p-report">
+  <div id="scoreCard" class="score-card">
+    <div class="label">成本费用健康评分</div>
+    <div class="score">—</div>
+    <div class="grade">请先在「填数据」页录入</div>
+    <div class="suggestion"></div>
+  </div>
+  <div id="dimGrid" class="dim-grid"></div>
+  <div class="card">
+    <div class="card-title">📋 分析明细</div>
+    <div id="detailItems"></div>
+  </div>
+  <div class="fixed-bottom">
+    <button class="btn-secondary" onclick="st('input')">← 修改数据</button>
+    <button class="btn-primary" onclick="shareResult()">📤 分享</button>
+  </div>
+</div>
+
+<div class="panel" id="p-help">
+  <div class="help-card"><h3>📋 使用说明</h3>
+    <ol><li>填写收入、成本、费用数据</li><li>如有上期数据可填写做同比分析</li><li>系统自动分析成本结构、费用占比、异常预警</li></ol>
+  </div>
+  <div class="help-card"><h3>📊 分析维度</h3>
+    <p><strong>成本率</strong> — 营业成本/营业收入，行业对比</p>
+    <p><strong>费用结构</strong> — 销管财三大费用占比分析</p>
+    <p><strong>费用占比</strong> — 广告费/招待费占收入比</p>
+    <p><strong>利润率</strong> — 毛利率、净利率</p>
+    <p><strong>趋势对比</strong> — 同比变化分析</p>
+  </div>
+  <div class="help-card"><h3>⚠️ 异常预警指标</h3>
+    <ul>
+      <li>成本率 > 85% → 毛利率过低</li>
+      <li>销售费用率 > 15% → 费用偏高</li>
+      <li>招待费/广告费占比异常 → 税前扣除风险</li>
+      <li>收入增长但利润下降 → 成本失控预警</li>
+    </ul>
+  </div>
+  <div class="help-card"><h3>👤 关于作者</h3>
+    <div class="contact">
+      <strong>洪淳宇 · 您身边的财税专家</strong>
+      <p>专注企业成本管控、费用优化、财税健康诊断</p>
+      <p style="margin-top:6px;">📞 186-0129-4989 | 💬 hongchunyu042896</p>
+    </div>
+  </div>
+</div>
+
+<script>
+function g(id){const el=document.getElementById("f_"+id);return el?parseFloat(el.value)||0:0}
+
+function calc(){
+  const 收入=g("营业收入"),成本=g("营业成本"),原材料=g("原材料"),人工=g("人工"),制造费=g("制造费用")
+  const 销售费=g("销售费用"),广告费=g("广告费"),管理费=g("管理费用"),招待费=g("招待费"),研发费=g("研发费"),财务费=g("财务费用"),净利润=g("净利润")
+  const 上期收入=g("上期收入"),上期成本=g("上期成本"),上期利润=g("上期利润")
+
+  const results=[];
+
+  // 1. 成本率
+  let 成本率=收入>0?成本/收入*100:0;
+  let 成本风险=0;
+  if(成本率>85){成本风险=2}else if(成本率>70){成本风险=1}
+  results.push({n:"营业成本率",v:`${成本率.toFixed(1)}%`,s:成本风险,d:成本率>85?"毛利率过低，建议优化成本结构":成本率>70?"成本率偏高，关注":""});
+
+  // 2. 人工成本占比
+  let 人工占比=收入>0?人工/收入*100:0;
+  let 人工风险=0;
+  if(人工占比>40){人工风险=2}else if(人工占比>25){人工风险=1}
+  results.push({n:"人工成本占比",v:`${人工占比.toFixed(1)}%`,s:人工风险,d:人工占比>40?"人工成本过高":人工占比>25?"人工成本偏高":"正常"});
+
+  // 3. 毛利率
+  let 毛利率=(收入-成本)>0?(收入-成本)/收入*100:0;
+  let 毛利风险=0;
+  if(毛利率<15){毛利风险=2}else if(毛利率<30){毛利风险=1}
+  results.push({n:"毛利率",v:`${毛利率.toFixed(1)}%`,s:毛利风险,d:毛利率<15?"毛利过低，经营压力大":"关注毛利率变化"});
+
+  // 4. 销售费用率
+  let 销售费率=收入>0?销售费/收入*100:0;
+  let 销售风险=0;
+  if(销售费率>15){销售风险=2}else if(销售费率>10){销售风险=1}
+  results.push({n:"销售费用率",v:`${销售费率.toFixed(1)}%`,s:销售风险,d:销售费率>15?"销售费用偏高，需优化效率":"正常"});
+
+  // 5. 管理费用率
+  let 管理费率=收入>0?管理费/收入*100:0;
+  let 管理风险=0;
+  if(管理费率>15){管理风险=2}else if(管理费率>10){管理风险=1}
+  results.push({n:"管理费用率",v:`${管理费率.toFixed(1)}%`,s:管理风险,d:管理费率>15?"管理费用偏高":"正常"});
+
+  // 6. 广告费占收入比
+  let 广告占比=收入>0?广告费/收入*100:0;
+  let 广告风险=0;
+  if(广告占比>15){广告风险=2}else if(广告占比>10){广告风险=1}
+  results.push({n:"广告宣传费/收入",v:`${广告占比.toFixed(1)}%`,s:广告风险,d:广告占比>15?"可能超税前扣除限额":""});
+
+  // 7. 业务招待费占收入比
+  let 招待占比=收入>0?招待费/收入*100:0;
+  let 招待风险=0;
+  if(招待占比>0.5){招待风险=2}else if(招待占比>0.3){招待风险=1}
+  results.push({n:"业务招待费/收入",v:`${招待占比.toFixed(2)}%`,s:招待风险,d:"扣除限额=发生额60%且≤收入0.5%"});
+
+  // 8. 净利率
+  let 净利率=收入>0?净利润/收入*100:0;
+  let 利润风险=0;
+  if(净利率<0){利润风险=2}else if(净利率<5){利润风险=1}
+  results.push({n:"净利率",v:`${净利率.toFixed(1)}%`,s:利润风险,d:净利率<0?"亏损状态":净利率<5?"利润微薄":"正常"});
+
+  // 9. 趋势分析
+  let 趋势风险=0;
+  let 趋势文本="";
+  if(上期收入>0&&收入>0){
+    const 收入增幅=(收入-上期收入)/上期收入*100;
+    if(上期成本>0&&成本>0){
+      const 成本增幅=(成本-上期成本)/上期成本*100;
+      if(收入增幅<成本增幅){趋势风险=2;趋势文本="成本增速超过收入增速，利润空间被压缩"}
+      else if(收入增幅>0&&利润增幅<0){趋势风险=1;趋势文本="收入增长但利润下降，需关注"}
+      else{趋势文本="收入与成本趋势正常"}
+    }
+  }
+
+  results.push({n:"收入vs成本趋势",v:趋势文本||"数据不足",s:趋势风险,d:趋势文本});
+
+  const totalScore=results.reduce((s,r)=>s+r.s,0);
+  const maxScore=results.length*2;
+  const rate=Math.round((maxScore-totalScore)/maxScore*100);
+
+  let grade,suggestion;
+  if(rate>=85){grade="🟢 成本控制良好";suggestion="🎉 成本费用结构合理，继续保持"}
+  else if(rate>=70){grade="🟡 基本健康";suggestion="📌 部分指标需关注，建议优化费用结构"}
+  else if(rate>=55){grade="🟠 存在压力";suggestion="⚠️ 成本费用存在一定压力，建议排查异常项"}
+  else{grade="🔴 成本失控预警";suggestion="🚨 成本费用问题突出，强烈建议专业分析"}
+
+  document.getElementById("scoreCard").innerHTML=
+    `<div class="label">成本费用健康评分</div><div class="score">${maxScore-totalScore}/${maxScore}</div><div class="grade">${grade}</div><div class="suggestion">${suggestion}</div>`;
+
+  const dims={
+    "成本率":{s:成本风险,m:2},"人工占比":{s:人工风险,m:2},"毛利率":{s:毛利风险,m:2},
+    "销售费用":{s:销售风险,m:2},"管理费用":{s:管理风险,m:2},"广告占比":{s:广告风险,m:2},
+    "招待费":{s:招待风险,m:2},"净利率":{s:利润风险,m:2},"趋势":{s:趋势风险,m:2}
+  };
+  document.getElementById("dimGrid").innerHTML=Object.entries(dims).map(([k,v])=>{
+    const p=Math.round((v.m-v.s)/v.m*100);
+    let c="#16a34a",cl="pass";
+    if(p<60){c="#dc2626";cl="danger"}else if(p<80){c="#d97706";cl="warn"}
+    return `<div class="dim-card"><div class="name">${k}</div><div class="dscore" style="color:${c}">${v.s===0?"✓":v.s===1?"⚠":"✗"}</div><div class="dstatus ${cl}">${v.s===0?"正常":"关注"}</div></div>`;
+  }).join("");
+
+  document.getElementById("detailItems").innerHTML=results.map(r=>{
+    const c=r.s===0?"#16a34a":r.s===1?"#d97706":"#dc2626";
+    const t=r.s===0?"✓ 正常":r.s===1?"⚠ 关注":"❌ 异常";
+    return `<div style="display:flex;justify-content:space-between;padding:10px 16px;border-bottom:1px solid #f0f0f0;font-size:13px;align-items:center">
+      <div><span style="font-weight:500">${r.n}</span><br><span style="color:#888;font-size:12px">${r.d}</span></div>
+      <div style="text-align:right"><div style="font-weight:600">${r.v}</div><div style="color:${c};font-size:12px">${t}</div></div>
+    </div>`;
+  }).join("");
+  st("report");
+}
+function st(n){document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.tab===n));document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("active",p.id==="p-"+n));window.scrollTo(0,0)}
+function resetAll(){if(!confirm("清空数据？"))return;document.querySelectorAll("#p-input input").forEach(e=>e.value="");document.querySelectorAll("#p-input select").forEach(e=>e.selectedIndex=0)}
+function shareResult(){alert("📱 截屏保存即可分享给客户！")}
+</script>
+</body>
+</html>
